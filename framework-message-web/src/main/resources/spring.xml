@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"
+       default-autowire="byName">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="com.tomasky.msp.core" annotation-config="true"/>
+
+    <!--     <bean id="pollMsg" class="com.tomasky.msp.server.controller.PollMsg">
+            <property name="imsService" ref="imsServiceImpl"></property>
+        </bean> -->
+
+    <bean id="messageService" class="com.tomasky.msp.core.service.impl.MessageServiceImpl"/>
+
+    <bean id="shortMessageHelper" class="com.tomasky.msp.core.support.helper.ShortMessageHelper">
+        <property name="url" value="http://esms4.etonenet.com/sms/mt"/>
+        <property name="saleSpid" value="9067"/>
+        <property name="salePwd" value="fq@9067"/>
+        <property name="autoSpid" value="6278"/>
+        <property name="autoPwd" value="fqll6278"/>
+        <property name="vipSpid" value="9088"/>
+        <property name="vipPwd" value="fqll9088"/>
+    </bean>
+
+
+    <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+        <constructor-arg ref="mongo"/>
+        <constructor-arg name="databaseName" value="message"/>
+    </bean>
+
+    <beans profile="dev">
+
+        <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+            <property name="port" value="9007"/>
+        </bean>
+        <bean id="pollMsg" class="com.tomasky.msp.rmi.PollMsg"/>
+        <bean id="serviceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
+            <property name="service" ref="pollMsg"/>
+            <!-- 定义服务名 -->
+            <property name="serviceName" value="poll"/>
+            <property name="serviceInterface" value="com.tomasky.msp.rmi.PollMsgAble"/>
+            <property name="registry" ref="registry"/>
+            <property name="servicePort" value="9008"></property>
+        </bean>
+
+        <mongo:mongo host="192.168.1.28" port="27017"/>
+        <mongo:db-factory dbname="message" mongo-ref="mongo"/>
+
+        <bean id="mappingContext" class="org.springframework.data.mongodb.core.mapping.MongoMappingContext"/>
+        <bean id="mappingMongoConverter" class="org.springframework.data.mongodb.core.convert.MappingMongoConverter">
+            <constructor-arg name="mongoDbFactory" ref="mongoDbFactory"/>
+            <constructor-arg name="mappingContext" ref="mappingContext"/>
+            <property name="typeMapper" ref="defaultMongoTypeMapper"/>
+        </bean>
+
+        <!-- 默认Mongodb类型映射 -->
+        <bean id="defaultMongoTypeMapper" class="org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper">
+            <constructor-arg name="typeKey">
+                <null/>
+                <!-- 这里设置为空,可以把 spring data mongodb 多余保存的_class字段去掉 -->
+            </constructor-arg>
+        </bean>
+
+    </beans>
+
+    <beans profile="test">
+
+        <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+            <property name="port" value="9007"/>
+        </bean>
+        <bean id="pollMsg" class="com.tomasky.msp.rmi.PollMsg"/>
+        <bean id="serviceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
+            <property name="service" ref="pollMsg"/>
+            <!-- 定义服务名 -->
+            <property name="serviceName" value="poll"/>
+            <property name="serviceInterface" value="com.tomasky.msp.rmi.PollMsgAble"/>
+            <property name="registry" ref="registry"/>
+            <property name="servicePort" value="9008"></property>
+        </bean>
+
+        <mongo:mongo host="192.168.1.28" port="27017">
+            <mongo:options threads-allowed-to-block-for-connection-multiplier="30"/>
+        </mongo:mongo>
+        <mongo:db-factory dbname="message" mongo-ref="mongo"/>
+
+        <bean id="mappingContext" class="org.springframework.data.mongodb.core.mapping.MongoMappingContext"/>
+        <bean id="mappingMongoConverter" class="org.springframework.data.mongodb.core.convert.MappingMongoConverter">
+            <constructor-arg name="mongoDbFactory" ref="mongoDbFactory"/>
+            <constructor-arg name="mappingContext" ref="mappingContext"/>
+            <property name="typeMapper" ref="defaultMongoTypeMapper"/>
+        </bean>
+
+        <!-- 默认Mongodb类型映射 -->
+        <bean id="defaultMongoTypeMapper" class="org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper">
+            <constructor-arg name="typeKey">
+                <null/>
+                <!-- 这里设置为空,可以把 spring data mongodb 多余保存的_class字段去掉 -->
+            </constructor-arg>
+        </bean>
+
+    </beans>
+    <beans profile="staging">
+        <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+            <property name="port" value="19007"/>
+        </bean>
+        <bean id="pollMsg" class="com.tomasky.msp.rmi.PollMsg"/>
+        <bean id="serviceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
+            <property name="service" ref="pollMsg"/>
+            <!-- 定义服务名 -->
+            <property name="serviceName" value="poll"/>
+            <property name="serviceInterface" value="com.tomasky.msp.rmi.PollMsgAble"/>
+            <property name="registry" ref="registry"/>
+            <property name="servicePort" value="19008"></property>
+        </bean>
+        <mongo:mongo host="10.144.10.151" port="37017"/>
+    </beans>
+    <beans profile="production">
+
+        <bean id="registry" class="org.springframework.remoting.rmi.RmiRegistryFactoryBean">
+            <property name="port" value="9007"/>
+        </bean>
+        <bean id="pollMsg" class="com.tomasky.msp.rmi.PollMsg"/>
+        <bean id="serviceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
+            <property name="service" ref="pollMsg"/>
+            <!-- 定义服务名 -->
+            <property name="serviceName" value="poll"/>
+            <property name="serviceInterface" value="com.tomasky.msp.rmi.PollMsgAble"/>
+            <property name="registry" ref="registry"/>
+            <property name="servicePort" value="9008"></property>
+        </bean>
+
+        <mongo:mongo replica-set="10.144.10.151:27017,10.161.77.140:27017,10.163.227.13:27017">
+            <mongo:options connections-per-host="100" threads-allowed-to-block-for-connection-multiplier="100"
+                           connect-timeout="3000"
+                           max-wait-time="5000"/>
+        </mongo:mongo>
+    </beans>
+
+
+</beans>

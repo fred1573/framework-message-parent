@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-autowire="byName">
+
+    <beans profile="test">
+        <bean name="pollService" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
+            <property name="serviceUrl" value="rmi://192.168.1.26:9007/poll"/>
+            <property name="serviceInterface" value="com.tomasky.msp.rmi.PollMsgAble"/>
+            <property name="lookupStubOnStartup" value="false"/>
+            <property name="refreshStubOnConnectFailure" value="true"/>
+            <property name="cacheStub" value="false"/>
+        </bean>
+    </beans>
+
+    <beans profile="staging">
+        <bean name="pollService" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
+            <property name="serviceUrl" value="rmi://10.144.10.151:19007/poll"/>
+            <property name="serviceInterface" value="com.tomasky.msp.rmi.PollMsgAble"/>
+            <property name="lookupStubOnStartup" value="false"/>
+            <property name="refreshStubOnConnectFailure" value="true"/>
+            <property name="cacheStub" value="false"/>
+        </bean>
+    </beans>
+
+    <beans profile="production">
+        <bean name="pollService" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
+            <property name="serviceUrl" value="rmi://10.144.10.151:9007/poll"/>
+            <property name="serviceInterface" value="com.tomasky.msp.rmi.PollMsgAble"/>
+            <property name="lookupStubOnStartup" value="false"/>
+            <property name="refreshStubOnConnectFailure" value="true"/>
+            <property name="cacheStub" value="false"/>
+        </bean>
+    </beans>
+
+
+</beans>
